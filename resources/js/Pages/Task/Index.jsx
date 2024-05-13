@@ -2,11 +2,11 @@ import Pagination from '@/Components/Pagination';
 import SelectInput from '@/Components/SelectInput';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { PROJECT_STATUS_CLASS_MAP, PROJECT_STATUS_TEXT_MAP } from '@/constant';
+import { TASK_STATUS_CLASS_MAP, TASK_STATUS_TEXT_MAP } from '@/constant';
 import { Head, Link, router } from '@inertiajs/react';
 import TableHeading from '@/Components/TableHeading';
 
-export default function index({auth, projects, queryParams = null}) {
+export default function index({auth, tasks, queryParams = null}) {
 
     queryParams = queryParams || {};
     const searchFieldChanged = (name, value) => {
@@ -16,7 +16,7 @@ export default function index({auth, projects, queryParams = null}) {
         delete queryParams[name];
         }
 
-        router.get(route("project.index"), queryParams);
+        router.get(route("task.index"), queryParams);
     };
 
     const onKeyPress = (name, e) => {
@@ -37,21 +37,21 @@ export default function index({auth, projects, queryParams = null}) {
             queryParams.sort_direction =  "asc";
         }
 
-        router.get(route("project.index"), queryParams);
+        router.get(route("task.index"), queryParams);
     }
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">All Project</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">All Task</h2>}
         >
 
-        <Head title="Projects" />
+        <Head title="Tasks" />
 
         <div className="py-12">
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    {/* <pre>{JSON.stringify(projects, undefined, 2)}</pre> */}
+                    {/* <pre>{JSON.stringify(tasks, undefined, 2)}</pre> */}
                     <div className="p-6 text-gray-900 dark:text-gray-100">
                         <div className="overflow-auto">
                             <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400'>
@@ -110,7 +110,7 @@ export default function index({auth, projects, queryParams = null}) {
                                             <TextInput
                                                 className="w-full"
                                                 defaultValue={queryParams.name}
-                                                placeholder="Project Name"
+                                                placeholder="Task Name"
                                                 onBlur={(e) =>
                                                     searchFieldChanged("name", e.target.value)
                                                 }
@@ -138,7 +138,7 @@ export default function index({auth, projects, queryParams = null}) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {projects.data.map((project) => (
+                                    {tasks.data.map((project) => (
                                         <tr key={project.id} className='bg-white border-b dark:bg-gray-800 dark:border-gray-700'>
                                             <td className='px-3 py-3'>{project.id}</td>
                                             <td className='px-3 py-3'>
@@ -147,9 +147,9 @@ export default function index({auth, projects, queryParams = null}) {
                                             <td className='px-3 py-3'>{project.name}</td>
                                             <td className='px-3 py-3'>
                                                 <span className={
-                                                    "px-2 py-1 rounded text-white " + PROJECT_STATUS_CLASS_MAP[project.status]
+                                                    "px-2 py-1 rounded text-white " + TASK_STATUS_CLASS_MAP[project.status]
                                                 }>
-                                                {PROJECT_STATUS_TEXT_MAP[project.status]}
+                                                {TASK_STATUS_TEXT_MAP[project.status]}
                                                 </span>
                                             </td>
                                             <td className='px-3 py-3'>{project.created_at}</td>
@@ -167,7 +167,7 @@ export default function index({auth, projects, queryParams = null}) {
                             </table>
                         </div>
                     </div>
-                    <Pagination links={projects.meta.links}/>
+                    <Pagination links={tasks.meta.links}/>
                 </div>
             </div>
         </div>
