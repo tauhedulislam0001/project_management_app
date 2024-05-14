@@ -144,7 +144,9 @@ export default function index({auth, projects, queryParams = null}) {
                                             <td className='px-3 py-3'>
                                                 <img src={project.image_path} style={{width:60}}/>
                                             </td>
-                                            <td className='px-3 py-3'>{project.name}</td>
+                                            <td className='px-3 py-3 text-gray-800 text-nowrap hover:underline'>
+                                                <Link href={route("project.show", project.id)}>{project.name}</Link>
+                                            </td>
                                             <td className='px-3 py-3'>
                                                 <span className={
                                                     "px-2 py-1 rounded text-white " + PROJECT_STATUS_CLASS_MAP[project.status]
@@ -166,8 +168,8 @@ export default function index({auth, projects, queryParams = null}) {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination links={projects.meta.links}/>
                     </div>
-                    <Pagination links={projects.meta.links}/>
                 </div>
             </div>
         </div>
