@@ -8,6 +8,8 @@ use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ProjectController extends Controller
@@ -36,6 +38,7 @@ class ProjectController extends Controller
         return Inertia::render('Project/Index', [
             "projects" => ProjectResource::collection($projects),
             'queryParams' => request()->query() ?: null,
+            'success' => session('success'),
         ]);
     }
 
@@ -44,7 +47,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia('Project/Create');
     }
 
     /**
@@ -52,7 +55,20 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        //
+        $data = $request->validated();
+        /** @var $image \illuminate\Http\UploadedFile */
+        $image = $data['image'] ?? null;
+        if($image) 
+        {
+            $data['image_path'] = $image->store("images/project/". Str::random(), 'public');
+        }
+
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+
+        $project = Project::create($data);
+
+        return to_route('project.index')->with('success', "Project was created");
     }
 
     /**
@@ -104,6 +120,8 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        $project_name = $project->name;
+        $project->delete();
+        return to_route('project.index')->with('success', "$project_name Project was deleted");
     }
 }
