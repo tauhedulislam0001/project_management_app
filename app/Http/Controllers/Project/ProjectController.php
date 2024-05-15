@@ -9,6 +9,7 @@ use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -60,7 +61,7 @@ class ProjectController extends Controller
         $image = $data['image'] ?? null;
         if($image) 
         {
-            $data['image_path'] = $image->store("images/project/". Str::random(), 'public');
+            $data['image_path'] = $image->store("project/". Str::random(), 'public');
         }
 
         $data['created_by'] = Auth::id();
@@ -104,7 +105,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return inertia("Project/Edit", [
+            "project" => new ProjectResource($project),
+        ]);
     }
 
     /**
@@ -112,7 +115,23 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        $data = $request->validated();
+        /** @var $image \illuminate\Http\UploadedFile */
+        $image = $data['image'] ?? null;
+        $data['updated_by'] = Auth::id();
+
+        if($image) 
+        {
+            if($project->image_path)
+            {
+                Storage::disk('public')->deleteDirectory(dirname($project->image_path));
+            }
+            $data['image_path'] = $image->store("project/". Str::random(), 'public');
+        }
+
+        $project->update($data);
+
+        return to_route('project.index')->with('success', "Project $project->name was updated");
     }
 
     /**
@@ -121,6 +140,10 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project_name = $project->name;
+        if($project->image_path)
+        {
+            Storage::disk('public')->deleteDirectory(dirname($project->image_path));
+        }
         $project->delete();
         return to_route('project.index')->with('success', "$project_name Project was deleted");
     }
