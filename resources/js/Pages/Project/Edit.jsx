@@ -6,20 +6,21 @@ import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({auth}) {
+export default function Edit({auth, project}) {
 
     const {data, setData, post, errors, reset} =useForm({
         image: '',
-        name: '',
-        status: '',
-        description: '',
-        due_date: '',
+        name: project.name || '',
+        status: project.status || '',
+        description: project.description || '',
+        due_date: project.due_date || '',
+        _method: "PUT",
     })
 
     const onSubmit = (e) => {
         e.preventDefault();
 
-        post(route("project.store"));
+        post(route("project.update", project.id));
     }
 
     return (
@@ -28,13 +29,13 @@ export default function Create({auth}) {
             header={
                 <div className='flex justify-between items-center'>
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                        Create New Project
+                        Edit Project {project.name}
                     </h2>
                 </div>
             }
         >
 
-        <Head title="Create Project" />
+        <Head title="Update Project" />
 
         
 
@@ -45,6 +46,9 @@ export default function Create({auth}) {
                         onSubmit={onSubmit}
                         className="p-4 bg-white dark:bg-gray-800 shadow sm:rounded-lg"
                     >
+                        {project.image_path && (<div className='mb-4'>
+                            <img src={project.image_path} alt="image" className="w-64"/>
+                        </div>)}
                         <div>
                             <InputLabel htmlFor="project_image_path" value="Project Image"></InputLabel>
                             <TextInput 
