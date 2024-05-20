@@ -3,7 +3,7 @@ import { PROJECT_STATUS_CLASS_MAP, PROJECT_STATUS_TEXT_MAP } from '@/constant';
 import { Head } from '@inertiajs/react';
 import TasksTable from '../Task/TasksTable';
 
-export default function show({auth, project, tasks, queryParams}) {
+export default function show({auth, project, tasks, queryParams, success}) {
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -70,7 +70,7 @@ export default function show({auth, project, tasks, queryParams}) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900 dark:text-gray-100">
-                            <TasksTable tasks={tasks} queryParams={queryParams} hideProjectColumn={true}/>
+                            <TasksTable tasks={tasks} queryParams={queryParams} success={success} hideProjectColumn={true}/>
                         </div>
                     </div>
                 </div>

@@ -5,9 +5,16 @@ namespace App\Http\Controllers\Task;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -35,6 +42,7 @@ class TaskController extends Controller
         return Inertia::render('Task/Index', [
             "tasks" => TaskResource::collection($tasks),
             'queryParams' => request()->query() ?: null,
+            'success' => session('success'),
         ]);
     }
 
@@ -43,7 +51,12 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        $projects = Project::query()->orderBy('name','asc')->get();
+        $users = User::query()->orderBy('name','asc')->get();
+        return inertia('Task/Create', [
+            "projects" => ProjectResource::collection($projects),
+            "users" => UserResource::collection($users)
+        ]);
     }
 
     /**
@@ -51,7 +64,20 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        //
+        $data = $request->validated();
+        /** @var $image \illuminate\Http\UploadedFile */
+        $image = $data['image'] ?? null;
+        if($image) 
+        {
+            $data['image_path'] = $image->store("task/". Str::random(), 'public');
+        }
+
+        $data['created_by'] = Auth::id();
+        $data['updated_by'] = Auth::id();
+
+        $task = Task::create($data);
+
+        return to_route('task.index')->with('success', "Task was created");
     }
 
     /**
@@ -59,7 +85,9 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        return Inertia::render("Task/Show", [
+            "task" => new TaskResource($task),
+        ]);
     }
 
     /**
@@ -67,7 +95,14 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        //
+        $projects = Project::query()->orderBy('name','asc')->get();
+        $users = User::query()->orderBy('name','asc')->get();
+
+        return inertia("Task/Edit", [
+            "task" => new TaskResource($task),
+            "projects" => ProjectResource::collection($projects),
+            "users" => UserResource::collection($users)
+        ]);
     }
 
     /**
@@ -75,7 +110,23 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        //
+        $data = $request->validated();
+        /** @var $image \illuminate\Http\UploadedFile */
+        $image = $data['image'] ?? null;
+        $data['updated_by'] = Auth::id();
+
+        if($image) 
+        {
+            if($task->image_path)
+            {
+                Storage::disk('public')->deleteDirectory(dirname($task->image_path));
+            }
+            $data['image_path'] = $image->store("task/". Str::random(), 'public');
+        }
+
+        $task->update($data);
+
+        return to_route('task.index')->with('success', "Task $task->name was updated");
     }
 
     /**
@@ -83,6 +134,12 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $task_name = $task->name;
+        if($task->image_path)
+        {
+            Storage::disk('public')->deleteDirectory(dirname($task->image_path));
+        }
+        $task->delete();
+        return to_route('task.index')->with('success', "$task_name Task was deleted");
     }
 }
