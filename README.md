@@ -4,8 +4,8 @@
 
 This project management system is a robust and user-friendly web application built with a powerful technology stack:
 
-Laravel (Backend): Provides a secure and scalable foundation for managing user accounts, data persistence, business logic, and API endpoints.
-React (Frontend): Offers a dynamic and interactive user interface, creating a single-page application (SPA) experience with seamless updates.
+Laravel (Backend): Provides a secure and scalable foundation for managing user accounts, data persistence, business logic, and API endpoints.<br>
+React (Frontend): Offers a dynamic and interactive user interface, creating a single-page application (SPA) experience with seamless updates. <br>
 Inertia.js (Bridge): Acts as a bridge between Laravel and React, streamlining data exchange and rendering, ensuring a smooth and intuitive user experience.
 
 ## Core Features
