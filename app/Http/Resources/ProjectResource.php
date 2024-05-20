@@ -15,7 +15,7 @@ class ProjectResource extends JsonResource
      * @return array<string, mixed>
      */
 
-    public static $wrap = false; //decode json data 
+     public static $wrap = false; //decode json data 
 
     public function toArray(Request $request): array
     {

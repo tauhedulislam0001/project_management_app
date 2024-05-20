@@ -5,7 +5,7 @@ import TextInput from '@/Components/TextInput';
 import { TASK_STATUS_CLASS_MAP, TASK_STATUS_TEXT_MAP } from '@/constant';
 import { Link, router } from '@inertiajs/react';
 
-export default function TasksTable({tasks, queryParams=null, hideProjectColumn=false}) {
+export default function TasksTable({tasks, queryParams=null, hideProjectColumn=false, success}) {
 
     queryParams = queryParams || {};
     const searchFieldChanged = (name, value) => {
@@ -39,8 +39,22 @@ export default function TasksTable({tasks, queryParams=null, hideProjectColumn=f
         router.get(route("task.index"), queryParams);
     }
 
+    const deleteProject = (task) => {
+        if(!window.confirm(`Are you sure you want to delete this ${task.name} task`)) {
+            return;
+        } else {
+            router.delete(route('task.destroy', task.id));
+        }
+    }
+
     return (
         <>
+
+            {success && 
+                (<div className='bg-emerald-500 py-2 px-4 text-white rounded mb-4'>
+                    {success}
+                </div>
+                )}
             <div className="overflow-auto">
                 <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400'>
                     <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
@@ -141,7 +155,11 @@ export default function TasksTable({tasks, queryParams=null, hideProjectColumn=f
                                 {!hideProjectColumn && (
                                     <td className='px-3 py-3'>{task.project.name}</td>
                                 )}
-                                <td className='px-3 py-3'>{task.name}</td>
+                                <td className='px-3 py-3'>
+                                    <Link href={route('task.show', task.id)}>
+                                    {task.name}
+                                    </Link>
+                                </td>
                                 <td className='px-3 py-3'>
                                     <span className={
                                         "px-2 py-1 rounded text-white " + TASK_STATUS_CLASS_MAP[task.status]
@@ -152,11 +170,11 @@ export default function TasksTable({tasks, queryParams=null, hideProjectColumn=f
                                 <td className='px-3 py-3'>{task.created_at}</td>
                                 <td className='px-3 py-3'>{task.due_date}</td>
                                 <td className='px-3 py-3'>{task.created_by.name}</td>
-                                <td className='px-3 py-3'>
+                                <td className='px-3 py-3 text-nowrap'>
                                     <Link href={route('task.edit', task.id)} className='font-medium text-blue-600 dark:text-blue-500 hover:underline mx-1'>
                                         Edit
                                     </Link>
-                                    <Link href={route('task.destroy', task.id)} className='font-medium text-red-600 dark:text-red-500 hover:underline mx-1'>Delete</Link>
+                                    <button onClick={(e) => deleteProject(task)} className='font-medium text-red-600 dark:text-red-500 hover:underline mx-1'>Delete</button>
                                 </td>
                             </tr>
                         ))}
